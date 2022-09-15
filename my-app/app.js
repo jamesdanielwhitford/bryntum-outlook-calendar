@@ -1,11 +1,15 @@
 import { Calendar } from './node_modules/@bryntum/calendar/calendar.module.js';
-// import { displayEvents } from './ui.js';
 
 const calendar = new Calendar({
 
     // append to the div with id="calendar"
     appendTo : document.getElementById('calendar'),
 
+    listeners : {
+        dataChange: function(event) {
+            createUpdateMicrosoft(event);
+        }
+         },
     resources : [
         {
             id         : 1,
@@ -13,21 +17,21 @@ const calendar = new Calendar({
             eventColor : 'green'
         }
     ],
-    events : [
-        {
-            id         : 1,
-            name       : 'Meeting',
-            startDate  : '2022-09-11T10:00:00',
-            endDate    : '2022-09-11T11:00:00',
-            resourceId : 1
-        }
-    ]
 });
 
-document.querySelector('#signin').addEventListener('click', displayUI);
-// document.querySelector('#btnShowEvents').addEventListener('click', displayEvents);
-export { calendar };
+async function createUpdateMicrosoft(event) {
 
+    if(event.action == "update") {
+        const microEvents = await getAllEvents();
+        var newEvent = calendar.events[calendar.events.length - 1];
+
+        if (microEvents.value[0].subject == "New event"){
+            updateEvent(microEvents.value[0].id, newEvent.name, newEvent.startDate, newEvent.endDate);
+        } else {
+            createEvent(newEvent.name, newEvent.startDate, newEvent.endDate);
+        }
+    }   
+}
 
 async function displayUI() {    
     await signIn();
@@ -39,7 +43,7 @@ async function displayUI() {
     content.style = "display: block";
 
     // Display calendar after login
-    var events = await getEvents();
+    var events = await getNextWeeksEvents();
     var calendarEvents = [];
     var eventId = 1;
     var resourceID = 1;
@@ -58,4 +62,7 @@ async function displayUI() {
 
 }
 
+document.querySelector('#signin').addEventListener('click', displayUI);
+
+export { calendar }
 export { displayUI };
