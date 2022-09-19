@@ -5,7 +5,7 @@ const msalConfig = {
         // comment out if you use a multi-tenant AAD app
         authority: 'https://login.microsoftonline.com/a98161b3-10f9-462f-8b21-bf0858317656',
         redirectUri: 'http://localhost:8080'
-    }
+    },
 };
 const msalRequest = { scopes: [] };
 function ensureScope (scope) {
