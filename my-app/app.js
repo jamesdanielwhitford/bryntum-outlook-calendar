@@ -7,7 +7,7 @@ const calendar = new Calendar({
 
     listeners : {
         dataChange: function(event) {
-            createUpdateMicrosoft(event);
+            updateMicrosoft(event);
         }
          },
     resources : [
@@ -19,17 +19,46 @@ const calendar = new Calendar({
     ],
 });
 
-async function createUpdateMicrosoft(event) {
-
+async function updateMicrosoft(event) {
     if(event.action == "update") {
         const microEvents = await getAllEvents();
-        var newEvent = calendar.events[calendar.events.length - 1];
+        // check if event exists in microsoft, if it does, update it, if not, create it
+        var eventExists = false;
 
-        if (microEvents.value[0].subject == "New event"){
-            updateEvent(microEvents.value[0].id, newEvent.name, newEvent.startDate, newEvent.endDate);
-        } else {
-            createEvent(newEvent.name, newEvent.startDate, newEvent.endDate);
+        microEvents.value.forEach(microEvent => {
+            // event exists in both microsoft and bryntum with the same name
+            if(microEvent.subject == event.record.name) {
+                eventExists = true;
+                updateEvent(microEvent.id, event.record.name, event.record.startDate, event.record.endDate);
+            } 
+            // The event exists but the name was updated
+            else if('duration' in event.changes || 'name' in event.changes) {
+                if ('name' in event.changes) {
+                    if (event.changes.name.oldValue != "New event"){
+                        eventExists = true;
+                        updateEvent(microEvent.id, event.record.name, event.record.startDate, event.record.endDate);
+                    }
+            }
         }
+        });
+        // event does not exist in microsoft, create it
+        if(!eventExists) {
+            if (event.record.name != undefined) {
+                createEvent(event.record.name, event.record.startDate, event.record.endDate);
+            } 
+        }
+
+    }
+    // event is deleted
+    else if (event.action == "remove") {
+        const microEvents = await getAllEvents();
+        var eventName = event.records[0].data.name;
+        microEvents.value.forEach(event => {
+            if (event.subject == eventName) {
+                deleteEvent(event.id);
+            }
+        });
+
     }   
 }
 
