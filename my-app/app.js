@@ -58,6 +58,7 @@ async function updateMicrosoft(event) {
                 deleteEvent(event.id);
             }
         });
+
     }   
 }
 

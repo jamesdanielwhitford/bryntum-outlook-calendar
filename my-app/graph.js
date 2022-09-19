@@ -38,6 +38,7 @@ async function createEvent(name, startDate, endDate) {
         end: {
             dateTime: `${endDate.toISOString()}`,
             timeZone: 'Eastern European Summer Time'
+
         },
 
     };
@@ -66,6 +67,7 @@ async function updateEvent(id, name, startDate, endDate) {
         },
         start: {
             dateTime: `${startDate.toISOString()}`,
+
             timeZone: 'Eastern European Summer Time'
         },
         end: {
@@ -79,9 +81,11 @@ async function updateEvent(id, name, startDate, endDate) {
     .patch(event);
 }
 
+
 async function deleteEvent(id) {
     ensureScope('Calendars.ReadWrite');
     return await graphClient
     .api(`/me/events/${id}`)
     .delete();
 }
+
